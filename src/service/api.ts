@@ -1,8 +1,8 @@
 import * as Utility from '../utility/index';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
-import { Api, JsonRpc } from 'eosjs';
-import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
+import { Api, JsonRpc } from 'enf-eosjs';
+import { JsSignatureProvider } from 'enf-eosjs/dist/eosjs-jssig';
 import * as Service from '../service/index';
 
 let defaultAPIs = [

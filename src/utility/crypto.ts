@@ -12,7 +12,7 @@ export function encrypt(data: string | Object, password: string): string {
     return iv.toString('hex') + '$' + encrypted.toString('hex');
 }
 
-export function decrypt<T = string>(data: string, password: string, fromJSON = false): T {
+export function decrypt<T = string>(data: string, password: string, fromJSON = false): T | any {
     if (!data.includes('$')) {
         throw new Error(`Could not decrypt data`);
     }
@@ -30,7 +30,7 @@ export function decrypt<T = string>(data: string, password: string, fromJSON = f
         return JSON.parse(decrypted.toString());
     }
 
-    return decrypted.toString() as T;
+    return decrypted.toString();
 }
 
 export function sha256(data: string, format: 'hex' | 'base64'): string {

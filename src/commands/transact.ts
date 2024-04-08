@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as Service from '../service/index';
 import * as Utility from '../utility/index';
-import { GetAbiResult } from 'eosjs/dist/eosjs-rpc-interfaces';
+import { GetAbiResult } from 'enf-eosjs/dist/eosjs-rpc-interfaces';
 
 async function register() {
     const disposable = vscode.commands.registerCommand(Service.command.commandNames.transact, async () => {

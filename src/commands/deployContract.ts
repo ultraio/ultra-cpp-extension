@@ -4,7 +4,7 @@ import * as Commands from './index';
 import * as Utility from '../utility/index';
 import * as glob from 'glob';
 import * as fs from 'fs';
-import { Serialize } from 'eosjs';
+import { Serialize } from 'enf-eosjs';
 
 let disposable: vscode.Disposable;
 
