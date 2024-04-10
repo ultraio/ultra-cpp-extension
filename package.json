@@ -130,7 +130,8 @@
         "@ultraos/contract-builder": "^1.0.4",
         "eosjs-ecc": "^4.0.7",
         "@wharfkit/antelope": "^1.0.7",
-        "enf-eosjs": "^23.0.0",
+        "@ultraos/ultra-api-lib": "^1.1.0",
+        "@ultraos/ultra-signer-lib": "^1.6.0",
         "glob": "^8.1.0",
         "node-fetch": "^2.6.11"
     }
