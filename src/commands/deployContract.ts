@@ -1,10 +1,9 @@
 import * as vscode from 'vscode';
 import * as Service from '../service/index';
-import * as Commands from './index';
 import * as Utility from '../utility/index';
 import * as glob from 'glob';
 import * as fs from 'fs';
-import { Serialize } from 'eosjs';
+import { ABI, Serializer } from "@wharfkit/antelope";
 
 let disposable: vscode.Disposable;
 
@@ -68,48 +67,41 @@ async function register() {
             return;
         }
 
-        const buffer = new Serialize.SerialBuffer({
-            textEncoder: api.textEncoder,
-            textDecoder: api.textDecoder,
+        let abiJson = JSON.parse(fs.readFileSync(abiPath, 'utf-8'));
+
+        const encodedAbi = Serializer.encode({
+            object: ABI.from(abiJson),
         });
 
-        const abiDefinition = api.abiTypes.get(`abi_def`);
-        let abi = JSON.parse(fs.readFileSync(abiPath, 'utf-8'));
-        abi = abiDefinition.fields.reduce(
-            (acc, { name: fieldName }) => Object.assign(acc, { [fieldName]: acc[fieldName] || [] }),
-            abi
-        );
-        abiDefinition.serialize(buffer, abi);
+        const abiHex = Buffer.from(encodedAbi.array).toString('hex');
 
         const authorization = [{ actor, permission }];
         const outputChannel = Utility.outputChannel.get();
+
         const transactionResult = await api
             .transact(
-                {
-                    actions: [
-                        {
-                            authorization,
-                            account: 'eosio',
-                            name: 'setcode',
-                            data: {
-                                account: actor,
-                                vmtype: 0,
-                                vmversion: 0,
-                                code: wasm,
-                            },
+                [
+                    {
+                        authorization,
+                        account: 'eosio',
+                        name: 'setcode',
+                        data: {
+                            account: actor,
+                            vmtype: 0,
+                            vmversion: 0,
+                            code: wasm,
                         },
-                        {
-                            authorization,
-                            account: 'eosio',
-                            name: 'setabi',
-                            data: {
-                                account: actor,
-                                abi: Buffer.from(buffer.asUint8Array()).toString(`hex`),
-                            },
+                    },
+                    {
+                        authorization,
+                        account: 'eosio',
+                        name: 'setabi',
+                        data: {
+                            account: actor,
+                            abi: abiHex,
                         },
-                    ],
-                },
-                { blocksBehind: 3, expireSeconds: 30, broadcast: true }
+                    }
+                ]
             )
             .catch((err) => {
                 outputChannel.appendLine(err);
@@ -118,19 +110,15 @@ async function register() {
             });
 
         if (!transactionResult) {
-            outputChannel.appendLine(`Could not deploy contract.`);
+            outputChannel.appendLine('Could not deploy contract.');
             outputChannel.show();
-            return;
-        }
-
-        if (typeof transactionResult === 'object') {
+        } else if (typeof transactionResult.data === 'string') {
+            outputChannel.appendLine(transactionResult.data);
+            outputChannel.show();
+        } else {
             outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
-            return;
         }
-
-        outputChannel.appendLine(transactionResult.toString());
-        outputChannel.show();
     });
 
     const context = await Utility.context.get();

@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as Service from '../service/index';
 import * as Utility from '../utility/index';
-import { GetAbiResult } from 'eosjs/dist/eosjs-rpc-interfaces';
 
 async function register() {
     const disposable = vscode.commands.registerCommand(Service.command.commandNames.transact, async () => {
@@ -26,7 +25,17 @@ async function register() {
             return;
         }
 
-        const result: GetAbiResult = await api.rpc.get_abi(contract).catch((err) => {
+        const ultraApi = await Service.api.getUltraApi().catch((err) => {
+            console.log(err);
+            return undefined;
+        });
+
+        if (ultraApi === undefined) {
+            console.log(`Undefined ultraAPi`);
+            return undefined;
+        }
+
+        const result = await ultraApi.chain.getAbi(contract).catch((err) => {
             console.log(err);
             return undefined;
         });
@@ -98,17 +107,14 @@ async function register() {
         const outputChannel = Utility.outputChannel.get();
         const transactionResult = await api
             .transact(
-                {
-                    actions: [
-                        {
-                            account: contract,
-                            name: action,
-                            authorization: [{ actor, permission }],
-                            data: formData,
-                        },
-                    ],
-                },
-                { blocksBehind: 3, expireSeconds: 30, broadcast: true }
+                [
+                    {
+                        account: contract,
+                        name: action,
+                        authorization: [{ actor, permission }],
+                        data: formData,
+                    },
+                ]
             )
             .catch((err) => {
                 outputChannel.appendLine(err);
@@ -118,17 +124,14 @@ async function register() {
 
         if (!transactionResult) {
             outputChannel.appendLine('Failed to transact.');
-            return;
-        }
-
-        if (typeof transactionResult === 'object') {
+            outputChannel.show();
+        } else if (typeof transactionResult.data === 'string') {
+            outputChannel.appendLine(transactionResult.data);
+            outputChannel.show();
+        } else {
             outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
-            return;
         }
-
-        outputChannel.appendLine(transactionResult.toString());
-        outputChannel.show();
     });
 
     const context = await Utility.context.get();

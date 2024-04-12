@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as Service from '../service/index';
 
-let disposableStatusBar: vscode.StatusBarItem;
+let disposableStatusBar: vscode.StatusBarItem | undefined;
 
 function register() {
     disposableStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
@@ -14,7 +14,7 @@ export function showStatusBar() {
         register();
     }
 
-    disposableStatusBar.show();
+    disposableStatusBar!.show();
 }
 
 export function hideStatusBar() {
@@ -22,28 +22,30 @@ export function hideStatusBar() {
         register();
     }
 
-    disposableStatusBar.hide();
+    disposableStatusBar!.hide();
 }
 
 export function setAsLocked() {
-    disposableStatusBar.text = '$(lock) Wallet';
-    disposableStatusBar.command = Service.command.commandNames.unlockWallet;
-    disposableStatusBar.tooltip = 'Unlock Wallet';
-    disposableStatusBar.backgroundColor = undefined;
+    if (disposableStatusBar) {
+        disposableStatusBar.text = '$(lock) Wallet';
+        disposableStatusBar.command = Service.command.commandNames.unlockWallet;
+        disposableStatusBar.tooltip = 'Unlock Wallet';
+        disposableStatusBar.backgroundColor = undefined;
+    }
 }
 
 export function setAsUnlocked() {
-    disposableStatusBar.text = '$(unlock) Wallet';
-    disposableStatusBar.command = Service.command.commandNames.lockWallet;
-    disposableStatusBar.tooltip = 'Lock Wallet';
-    disposableStatusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    if (disposableStatusBar) {
+        disposableStatusBar.text = '$(unlock) Wallet';
+        disposableStatusBar.command = Service.command.commandNames.lockWallet;
+        disposableStatusBar.tooltip = 'Lock Wallet';
+        disposableStatusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    }
 }
 
 export function dispose() {
-    if (!disposableStatusBar) {
-        return;
+    if (disposableStatusBar) {
+        disposableStatusBar.dispose();
+        disposableStatusBar = undefined;
     }
-
-    disposableStatusBar.dispose();
-    disposableStatusBar = undefined;
 }

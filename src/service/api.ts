@@ -1,9 +1,10 @@
 import * as Utility from '../utility/index';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
-import { Api, JsonRpc } from 'eosjs';
-import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 import * as Service from '../service/index';
+
+import { UltraAPI, connect } from '@ultraos/ultra-api-lib';
+import { API } from '@ultraos/ultra-signer-lib';
 
 let defaultAPIs = [
     { label: 'Ultra Mainnet', description: 'https://api.mainnet.ultra.io' },
@@ -70,7 +71,16 @@ export async function pick(): Promise<string | undefined> {
     return api;
 }
 
-export async function getSignable(): Promise<Api | undefined> {
+export async function getUltraApi(): Promise<UltraAPI | undefined> {
+    const endpoint = await pick();
+    if (!endpoint) {
+        return undefined;
+    }
+
+    return connect(endpoint);
+}
+
+export async function getSignable(): Promise<API | undefined> {
     const endpoint = await pick();
     if (!endpoint) {
         return undefined;
@@ -85,7 +95,10 @@ export async function getSignable(): Promise<Api | undefined> {
         return undefined;
     }
 
-    const rpc = new JsonRpc(endpoint, { fetch });
-    const signatureProvider = new JsSignatureProvider(privateKeys);
-    return new Api({ rpc, signatureProvider });
+    const api = new API(endpoint, {
+        signingMode: 'PRIVATE_KEY',
+        privateKeys: privateKeys
+      });
+
+    return api;
 }
