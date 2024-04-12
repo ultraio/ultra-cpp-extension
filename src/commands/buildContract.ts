@@ -7,7 +7,11 @@ import { build } from '@ultraos/contract-builder';
 let disposable: vscode.Disposable;
 const fileExtensions = ['.cpp', '.hpp', '.cc'];
 
-function isCpp(fileName: string) {
+function isCpp(fileName: string | undefined) {
+    if (fileName === undefined) {
+        return false;
+    }
+
     for (let ext of fileExtensions) {
         if (!fileName.includes(ext)) {
             continue;

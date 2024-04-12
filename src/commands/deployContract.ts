@@ -3,7 +3,7 @@ import * as Service from '../service/index';
 import * as Utility from '../utility/index';
 import * as glob from 'glob';
 import * as fs from 'fs';
-import { Serializer } from "@wharfkit/antelope";;
+import { ABI, Serializer } from "@wharfkit/antelope";
 
 let disposable: vscode.Disposable;
 
@@ -70,10 +70,10 @@ async function register() {
         let abiJson = JSON.parse(fs.readFileSync(abiPath, 'utf-8'));
 
         const encodedAbi = Serializer.encode({
-            object: abiJson,
+            object: ABI.from(abiJson),
         });
 
-        const abiHex = encodedAbi.toString('hex');
+        const abiHex = Buffer.from(encodedAbi.array).toString('hex');
 
         const authorization = [{ actor, permission }];
         const outputChannel = Utility.outputChannel.get();
@@ -113,16 +113,14 @@ async function register() {
             outputChannel.appendLine(`Could not deploy contract.`);
             outputChannel.show();
             return;
-        }
-
-        if (typeof transactionResult === 'object') {
+        } else if (typeof transactionResult.data === 'object') {
             outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
             return;
+        } else {
+            outputChannel.appendLine(transactionResult.toString());
+            outputChannel.show();
         }
-
-        outputChannel.appendLine(transactionResult.toString());
-        outputChannel.show();
     });
 
     const context = await Utility.context.get();

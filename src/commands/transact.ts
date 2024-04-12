@@ -30,7 +30,12 @@ async function register() {
             return undefined;
         });
 
-        const result = await ultraApi.getAbi(contract).catch((err) => {
+        if (ultraApi === undefined) {
+            console.log(`Undefined ultraAPi`);
+            return undefined;
+        }
+
+        const result = await ultraApi.chain.getAbi(contract).catch((err) => {
             console.log(err);
             return undefined;
         });
@@ -120,16 +125,14 @@ async function register() {
         if (!transactionResult) {
             outputChannel.appendLine('Failed to transact.');
             return;
-        }
-
-        if (typeof transactionResult === 'object') {
+        } else if (typeof transactionResult.data === 'object') {
             outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
             return;
+        } else {
+            outputChannel.appendLine(transactionResult.toString());
+            outputChannel.show();
         }
-
-        outputChannel.appendLine(transactionResult.toString());
-        outputChannel.show();
     });
 
     const context = await Utility.context.get();

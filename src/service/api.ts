@@ -97,7 +97,7 @@ export async function getSignable(): Promise<API | undefined> {
 
     const api = new API(endpoint, {
         signingMode: 'PRIVATE_KEY',
-        keosdEndpoint: process.env.KEOSD_ENDPOINT || 'http://127.0.0.1:8899'
+        privateKeys: privateKeys
       });
 
     return api;

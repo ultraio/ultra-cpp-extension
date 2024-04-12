@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as Service from '../service/index';
 
-let disposableStatusBar: vscode.StatusBarItem;
+let disposableStatusBar: vscode.StatusBarItem | undefined;
 
 function register() {
     disposableStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
@@ -16,7 +16,7 @@ export function showStatusBar() {
         register();
     }
 
-    disposableStatusBar.show();
+    disposableStatusBar!.show();
 }
 
 export function hideStatusBar() {
@@ -24,14 +24,12 @@ export function hideStatusBar() {
         register();
     }
 
-    disposableStatusBar.hide();
+    disposableStatusBar!.hide();
 }
 
 export function dispose() {
-    if (!disposableStatusBar) {
-        return;
+    if (disposableStatusBar) {
+        disposableStatusBar.dispose();
+        disposableStatusBar = undefined;
     }
-
-    disposableStatusBar.dispose();
-    disposableStatusBar = undefined;
 }
