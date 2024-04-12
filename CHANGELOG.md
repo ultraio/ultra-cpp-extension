@@ -2,6 +2,9 @@
 
 All notable changes to the "ultra-cpp" extension will be documented in this file.
 
+## 1.4.1
+- Added Wharfkit support
+
 ## 1.3.9
 
 - Fix issue where wallet could not be destroyed properly.
