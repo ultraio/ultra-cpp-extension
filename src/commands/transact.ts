@@ -124,13 +124,12 @@ async function register() {
 
         if (!transactionResult) {
             outputChannel.appendLine('Failed to transact.');
-            return;
-        } else if (typeof transactionResult.data === 'object') {
-            outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
-            return;
+        } else if (typeof transactionResult.data === 'string') {
+            outputChannel.appendLine(transactionResult.data);
+            outputChannel.show();
         } else {
-            outputChannel.appendLine(transactionResult.toString());
+            outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
         }
     });

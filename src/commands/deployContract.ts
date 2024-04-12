@@ -110,15 +110,13 @@ async function register() {
             });
 
         if (!transactionResult) {
-            outputChannel.appendLine(`Could not deploy contract.`);
+            outputChannel.appendLine('Could not deploy contract.');
             outputChannel.show();
-            return;
-        } else if (typeof transactionResult.data === 'object') {
-            outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
+        } else if (typeof transactionResult.data === 'string') {
+            outputChannel.appendLine(transactionResult.data);
             outputChannel.show();
-            return;
         } else {
-            outputChannel.appendLine(transactionResult.toString());
+            outputChannel.appendLine(JSON.stringify(transactionResult, null, 2));
             outputChannel.show();
         }
     });
