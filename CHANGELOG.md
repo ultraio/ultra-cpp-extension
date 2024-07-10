@@ -2,6 +2,11 @@
 
 All notable changes to the "ultra-cpp" extension will be documented in this file.
 
+## 1.4.2
+
+- Renamed 'Contract Name' to 'Contract Account Name' to reduce the confusion
+- Updated transaction creation flow to remove the extra API selection step
+
 ## 1.4.1
 - Added Wharfkit support
 

@@ -16,7 +16,7 @@ const multiQuery = [
     {
         property: 'code',
         inputOptions: {
-            title: 'Contract Name',
+            title: 'Contract Account Name',
             value: 'eosio.token',
             placeHolder: 'Name of the contract',
         },

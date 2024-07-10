@@ -71,8 +71,8 @@ export async function pick(): Promise<string | undefined> {
     return api;
 }
 
-export async function getUltraApi(): Promise<UltraAPI | undefined> {
-    const endpoint = await pick();
+export async function getUltraApi(customEndpoint?: string): Promise<UltraAPI | undefined> {
+    const endpoint = customEndpoint ? customEndpoint : await pick();
     if (!endpoint) {
         return undefined;
     }
@@ -80,8 +80,8 @@ export async function getUltraApi(): Promise<UltraAPI | undefined> {
     return connect(endpoint);
 }
 
-export async function getSignable(): Promise<API | undefined> {
-    const endpoint = await pick();
+export async function getSignable(customEndpoint?: string): Promise<API | undefined> {
+    const endpoint = customEndpoint ? customEndpoint : await pick();
     if (!endpoint) {
         return undefined;
     }

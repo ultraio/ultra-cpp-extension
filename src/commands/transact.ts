@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as Service from '../service/index';
 import * as Utility from '../utility/index';
+import { API } from '@ultraos/ultra-signer-lib';
 
 async function register() {
     const disposable = vscode.commands.registerCommand(Service.command.commandNames.transact, async () => {
@@ -9,14 +10,22 @@ async function register() {
             return;
         }
 
-        const api = await Service.api.getSignable();
+        const endpoint = await Service.api.pick();
+        if (!endpoint) {
+            return;
+        }
+
+        const api = await Service.api.getSignable(endpoint).catch((err) => {
+            console.log(err);
+            return undefined;
+        });
         if (!api) {
             vscode.window.showErrorMessage('Could not create signable API. Wrong password? Bad endpoint?');
             return;
         }
 
         const contract = await Utility.quickInput.create({
-            title: 'Contract Name',
+            title: 'Contract Account Name',
             placeHolder: 'eosio.token',
             value: '',
         });
@@ -25,7 +34,7 @@ async function register() {
             return;
         }
 
-        const ultraApi = await Service.api.getUltraApi().catch((err) => {
+        const ultraApi = await Service.api.getUltraApi(endpoint).catch((err) => {
             console.log(err);
             return undefined;
         });
@@ -40,8 +49,8 @@ async function register() {
             return undefined;
         });
 
-        if (!result || !result.abi) {
-            vscode.window.showErrorMessage(`Contract '${contract}' does not have a contract set`);
+        if (!result || !result.abi) { 
+            vscode.window.showErrorMessage(`Account '${contract}' does not have a contract set`);
             return;
         }
 
@@ -76,15 +85,40 @@ async function register() {
             return;
         }
 
-        // Ask for Signer
-        const signer = await Utility.quickInput.create({
-            title: 'Who is signing?',
-            placeHolder: 'myacc@active',
-            value: '',
-        });
+        let actor: string = '', permission: string = '';
 
-        if (!signer) {
-            return;
+        while (actor.length <= 0) {
+            // Ask for Signer
+            const signer = await Utility.quickInput.create({
+                title: 'Who is signing?',
+                placeHolder: 'myacc@active',
+                value: '',
+            });
+
+            if (!signer) {
+                return;
+            }
+
+            [actor, permission] = signer.split('@');
+
+            if (!permission) {
+                permission = 'active';
+            }
+
+            try {
+                // Ensure this account can be signed as
+                const testTrx = await api.buildTransaction([{
+                    account: 'eosio.token',
+                    name: 'transfer',
+                    authorization: [{ actor, permission }],
+                    data: {from: actor, to: actor, quantity: '0.00000000 UOS', memo: ''}
+                }]);
+                const signature = await api.signTransaction(testTrx);
+            } catch (err) {
+                console.log(err);
+                vscode.window.showErrorMessage(`Was not able to sign as ${signer}.`);
+                actor = '';
+            }
         }
 
         let formData: any;
@@ -97,11 +131,6 @@ async function register() {
         if (!formData) {
             vscode.window.showErrorMessage(`Form was not filled out. Canceled transaction.`);
             return;
-        }
-
-        let [actor, permission] = signer.split('@');
-        if (!permission) {
-            permission = 'active';
         }
 
         const outputChannel = Utility.outputChannel.get();

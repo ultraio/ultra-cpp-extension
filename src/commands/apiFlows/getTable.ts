@@ -8,9 +8,9 @@ const multiQuery = [
     {
         property: 'code',
         inputOptions: {
-            title: 'Contract Name',
+            title: 'Contract Account Name',
             value: '',
-            placeHolder: 'Name of the contract the table belongs to',
+            placeHolder: 'Name of the contract account the table belongs to',
         },
     },
     {
