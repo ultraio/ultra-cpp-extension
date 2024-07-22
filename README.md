@@ -52,7 +52,7 @@ These can be accessed with `(CTRL / CMD) + SHIFT + P` or through the Command Pal
 
 ### Wallet Service
 
-The wallet service allows you to store private keys inside of VSCode's global state with encryption. However, `1.2.2` of this extension is still missing signing transactions, and such. Will add soon.
+The wallet service allows you to store private keys inside of VSCode's global state with encryption.
 
 - Ultra: Wallet - Create
   - Creates a wallet with 'aes-256-cbc' encryption
@@ -93,4 +93,26 @@ The wallet service allows you to store private keys inside of VSCode's global st
 <br />
 
 - Q. How do I select which contract to compile in a monorepo?
-  - A. Open the root `.cpp` file of the smart contract in VSCode, and have it as the active file. 
+  - A. Open the root `.cpp` file of the smart contract in VSCode, and have it as the active file.
+
+## How to build and install locally
+
+Install the VSCode tool for local packaging
+
+```sh
+npm install -g vsce
+```
+
+Install dependencies within the directory of this repository
+
+```sh
+npm install
+```
+
+Use the following command each time you made some changes and want to apply them and install the extension
+
+```sh
+rm -rf ./ultra-cpp-*.vsix && vsce package && code --install-extension ultra-cpp-*.vsix
+```
+
+You will also need to restart the VSCode window to reload the extension after executing the above command. Otherwise the source code changes will not be reflected. To do this, use `Ctrl + Shift + P` to open command palette and type `>Reload Window`.
